@@ -12,7 +12,4 @@ using namespace Protocol;
 TEST(Packet, InitDestroy)
 {
     Packet packet;
-    ASSERT_EQ(packet.foo(), 32);
-    *packet.data() = 1;
-    ASSERT_EQ(packet.foo(), 42);
 }

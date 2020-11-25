@@ -74,8 +74,6 @@ namespace Protocol
 
         ~Packet(void) = default;
 
-        int foo();
-
         void setPayload(std::size_t payload) noexcept { _header.payload = payload; }
         [[nodiscard]] std::uint8_t *data(void) noexcept { return reinterpret_cast<std::uint8_t *>(&_data); }
         [[nodiscard]] std::size_t size(void) const noexcept { return sizeof(PacketHeader) + _header.payload; }
