@@ -5,6 +5,8 @@ get_filename_component(ProtocolRoot ${CMAKE_CURRENT_LIST_FILE} PATH)
 
 include(${ProtocolRoot}/CompileOptions/CompileOptions.cmake)
 
+add_submodule_directory(${ProtocolRoot}/Core)
+
 include(${ProtocolRoot}/Protocol/Protocol.cmake)
 
 if(TESTS)

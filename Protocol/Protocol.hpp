@@ -6,6 +6,7 @@
 #pragma once
 
 #include <cstdint>
+#include <utility>
 
 namespace Protocol
 {
@@ -13,7 +14,7 @@ namespace Protocol
     using NodeDistance = std::uint8_t;
 
     /** @brief Distance between two nodes */
-    using BoardID = std::uint16_t;
+    using BoardID = std::uint8_t;
 
     /** @brief Hardware connection type */
     enum class ConnectionType : std::uint8_t {
@@ -70,11 +71,11 @@ namespace Protocol
     {
     public:
         Packet(void) noexcept = default;
-        Packet(PacketID id) noexcept { _header.packetID = id; };
+        Packet(const PacketID id) noexcept { _header.packetID = id; };
 
         ~Packet(void) = default;
 
-        void setPayload(std::size_t payload) noexcept { _header.payload = payload; }
+        void setPayload(const std::size_t payload) noexcept { _header.payload = payload; }
         [[nodiscard]] std::uint8_t *data(void) noexcept { return reinterpret_cast<std::uint8_t *>(&_data); }
         [[nodiscard]] std::size_t size(void) const noexcept { return sizeof(PacketHeader) + _header.payload; }
 

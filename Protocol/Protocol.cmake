@@ -14,6 +14,8 @@ add_library(${PROJECT_NAME} ${ProtocolSources})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${ProtocolDir}/..)
 
+target_link_libraries(${PROJECT_NAME} PUBLIC Core)
+
 if(CODE_COVERAGE)
     target_compile_options(${PROJECT_NAME} PUBLIC --coverage)
     target_link_options(${PROJECT_NAME} PUBLIC --coverage)

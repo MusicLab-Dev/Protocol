@@ -1,6 +1,6 @@
 /**
  * @ Author: Matthieu Moinvaziri
- * @ Description: Core benchmarks
+ * @ Description: Protocol benchmarks
  */
 
 #include <benchmark/benchmark.h>
