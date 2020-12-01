@@ -139,7 +139,7 @@ private:
     const Header *_header { nullptr };
 };
 
-static_assert_fit_eighth_cacheline(Protocol::Internal::PacketBase);
+// static_assert_fit_eighth_cacheline(Protocol::Internal::PacketBase);
 
 /** @brief A read-only packet */
 class Protocol::ReadablePacket : public Internal::PacketBase
@@ -263,6 +263,6 @@ private:
         { return reinterpret_cast<Type *>(data<std::uint8_t>() + _writeIndex); }
 };
 
-static_assert_fit_quarter_cacheline(Protocol::WritablePacket);
+// static_assert_fit_quarter_cacheline(Protocol::WritablePacket);
 
 #include "Packet.ipp"
