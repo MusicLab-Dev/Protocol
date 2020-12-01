@@ -7,6 +7,7 @@
 
 #include <cstring>
 #include <iterator>
+#include <limits>
 
 #include <Core/Assert.hpp>
 
@@ -20,11 +21,23 @@ namespace Protocol
     namespace Internal
     {
         class PacketBase;
+
+        /** @brief Check if iterator type is eligible to a fast range copy */
+        template<typename Iterator>
+        constexpr bool IsTriviallyRangeCopyable =
+            std::is_trivially_copyable_v<decltype(*std::declval<Iterator>())> &&
+            std::is_same_v<
+                typename std::iterator_traits<Iterator>::iterator_category,
+                std::random_access_iterator_tag
+            >;
     }
 
     /** @brief Helper that detects if a type is a container */
     template<typename Type>
-    using ContainerDetector = decltype(*std::begin(std::declval<Type>()));
+    using ContainerDetector = decltype(
+        std::begin(std::declval<Type>()),
+        std::end(std::declval<Type>())
+    );
 
     /** @brief Helper to enable a function if parameter is a container or not */
     template<typename Type>
@@ -53,7 +66,11 @@ namespace Protocol
 class alignas_eighth_cacheline Protocol::Internal::PacketBase
 {
 public:
+    /** @brief Payload range */
     using Payload = std::uint16_t;
+
+    /** @brief Payload maximum value */
+    static constexpr Payload PayloadMax = std::numeric_limits<Payload>::max();
 
     /** @brief Header of a packet */
     struct alignas(4) Header
@@ -145,20 +162,20 @@ public:
 
     /** @brief Extract a value from the packet */
     template<typename Type>
-    [[nodiscard]] Type extract(void) noexcept_ndebug;
+    [[nodiscard]] Type extract(void);
 
     /** @brief Extract a range of values from the packet */
     template<typename OutputIterator>
-    void extract(const OutputIterator begin, const OutputIterator end) noexcept_ndebug;
+    void extract(const OutputIterator begin, const OutputIterator end);
 
 
     /** @brief Extract the deserializable data of a container to the packet (including its size) */
     template<typename Container, EnableIfContainerDetected<Container>* = nullptr>
-    ReadablePacket &operator>>(Container &container) noexcept_ndebug;
+    ReadablePacket &operator>>(Container &container);
 
     /** @brief Extract deserializable data to the packet */
     template<typename Type, EnableIfContainerNotDetected<Type>* = nullptr>
-    ReadablePacket &operator>>(Type &value) noexcept_ndebug;
+    ReadablePacket &operator>>(Type &value);
 
 
     /** @brief Get the packet payload (data size without header) */

@@ -11,7 +11,13 @@ namespace Protocol
 {
     /** @brief Every commands of the Connection protocol */
     DeclareProtocolEnum(ConnectionCommand) {
-        Connect = 100u,
-        Update
+        /**
+         * @brief Initialize connection
+         *  This is a long description ....
+         *  ..........................
+         *
+         * @param BoardID The board that receive XYZ
+         */
+        Connect = 100u
     };
 }

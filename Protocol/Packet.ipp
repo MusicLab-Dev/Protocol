@@ -16,7 +16,7 @@ inline Protocol::Internal::PacketBase::PacketBase(const BinaryData * const begin
 
 
 template<typename Type>
-Type Protocol::ReadablePacket::extract(void) noexcept_ndebug
+inline Type Protocol::ReadablePacket::extract(void)
 {
     Type value;
 
@@ -25,24 +25,17 @@ Type Protocol::ReadablePacket::extract(void) noexcept_ndebug
 }
 
 template<typename OutputIterator>
-void Protocol::ReadablePacket::extract(const OutputIterator begin, const OutputIterator end) noexcept_ndebug
+void Protocol::ReadablePacket::extract(const OutputIterator begin, const OutputIterator end)
 {
     using Type = decltype(*std::declval<OutputIterator>());
-
-    constexpr bool IsTriviallyRangeCopyable =
-        std::is_trivially_copyable_v<Type> &&
-        std::is_same_v<
-            typename std::iterator_traits<OutputIterator>::iterator_category,
-            std::random_access_iterator_tag
-        >;
 
     const auto size = std::distance(begin, end);
     const auto sizeInBytes = size * sizeof(Type);
 
     // Check if the container contains optimizable trivially copyable types
-    if constexpr (IsTriviallyRangeCopyable) {
-        coreAssert(bytesAvailable() >= size * sizeof(Type),
-            throw std::runtime_error("Protocol::WritablePacket::insert: Write overflow"));
+    if constexpr (Internal::IsTriviallyRangeCopyable<OutputIterator>) {
+        if (bytesAvailable() < size * sizeof(Type))
+            throw std::runtime_error("Protocol::WritablePacket::insert: Write overflow");
         std::memcpy(
             begin,
             currentDataHead(),
@@ -56,19 +49,19 @@ void Protocol::ReadablePacket::extract(const OutputIterator begin, const OutputI
 }
 
 template<typename Container, Protocol::EnableIfContainerDetected<Container>*>
-Protocol::ReadablePacket &Protocol::ReadablePacket::operator>>(Container &container) noexcept_ndebug
+inline Protocol::ReadablePacket &Protocol::ReadablePacket::operator>>(Container &container)
 {
-    container.resize(extract<std::uint16_t>());
+    container.resize(extract<Payload>());
     extract(std::begin(container), std::end(container));
     return *this;
 }
 
 template<typename Type, Protocol::EnableIfContainerNotDetected<Type>*>
-Protocol::ReadablePacket &Protocol::ReadablePacket::operator>>(Type &value) noexcept_ndebug
+inline Protocol::ReadablePacket &Protocol::ReadablePacket::operator>>(Type &value)
 {
-    coreAssert(bytesAvailable() >= sizeof(Type),
-        throw std::runtime_error("Protocol::ReadablePacket::operator>>: Read overflow"));
-    new (&value) Type { *currentDataHead<Type>() };
+    if (bytesAvailable() < sizeof(Type))
+        throw std::runtime_error("Protocol::ReadablePacket::operator>>: Read overflow");
+    value = *currentDataHead<Type>();
     _readIndex += sizeof(Type);
     return *this;
 }
@@ -91,18 +84,11 @@ inline Protocol::WritablePacket &Protocol::WritablePacket::insert(const InputIte
 {
     using Type = decltype(*std::declval<InputIterator>());
 
-    constexpr bool IsTriviallyRangeCopyable =
-        std::is_trivially_copyable_v<Type> &&
-        std::is_same_v<
-            typename std::iterator_traits<InputIterator>::iterator_category,
-            std::random_access_iterator_tag
-        >;
-
     const auto size = std::distance(begin, end);
     const auto sizeInBytes = size * sizeof(Type);
 
     // Check if the container contains optimizable trivially copyable types
-    if constexpr (IsTriviallyRangeCopyable) {
+    if constexpr (Internal::IsTriviallyRangeCopyable<InputIterator>) {
         coreAssert(bytesAvailable() >= size * sizeof(Type),
             throw std::runtime_error("Protocol::WritablePacket::insert: Write overflow"));
         header()->payload += sizeInBytes;
@@ -120,12 +106,12 @@ inline Protocol::WritablePacket &Protocol::WritablePacket::insert(const InputIte
 }
 
 template<typename Container, Protocol::EnableIfContainerDetected<Container>*>
-Protocol::WritablePacket &Protocol::WritablePacket::operator<<(const Container &container) noexcept_ndebug
+inline Protocol::WritablePacket &Protocol::WritablePacket::operator<<(const Container &container) noexcept_ndebug
 {
     const auto begin = std::begin(container);
     const auto end = std::end(container);
 
-    *this << static_cast<std::uint16_t>(std::distance(begin, end));
+    *this << static_cast<Payload>(std::distance(begin, end));
     return insert(begin, end);
 }
 

@@ -43,9 +43,7 @@ TEST(Packet, SimpleIntPacket)
 
     // Overflow test
     ASSERT_EQ(rpacket.bytesAvailable(), 0);
-#if CORE_DEBUG_BUILD
-    ASSERT_ANY_THROW(rpacket.extract<int>());
-#endif
+    ASSERT_ANY_THROW(static_cast<void>(rpacket.extract<int>()));
 }
 
 TEST(Packet, StringVector)
@@ -95,7 +93,5 @@ TEST(Packet, StringVector)
 
     // Overflow test
     ASSERT_EQ(rpacket.bytesAvailable(), 0);
-#if CORE_DEBUG_BUILD
-    ASSERT_ANY_THROW(rpacket.extract<int>());
-#endif
+    ASSERT_ANY_THROW(static_cast<void>(rpacket.extract<int>()));
 }
