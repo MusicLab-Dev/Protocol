@@ -35,4 +35,19 @@ namespace Protocol
         Connection = 10u,
         Event
     };
+
+    /** @brief Packet magic key type */
+    using MagicKey = std::uint32_t;
+
+    /** @brief SpecialLabMagicKey network packets magic key */
+    constexpr MagicKey SpecialLabMagicKey = 0xABCDEF;
+
+    /** @brief Discovery packet */
+    struct DiscoveryPacket
+    {
+        MagicKey magicKey { SpecialLabMagicKey };
+        BoardID boardID { 0u };
+        ConnectionType connectionType { ConnectionType::None };
+        NodeDistance distance { 0u };
+    };
 };

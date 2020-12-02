@@ -44,22 +44,6 @@ namespace Protocol
     using EnableIfContainerDetected = std::enable_if_t<Core::Utils::IsDetected<ContainerDetector, Type>>;
     template<typename Type>
     using EnableIfContainerNotDetected = std::enable_if_t<!Core::Utils::IsDetected<ContainerDetector, Type>>;
-
-
-    /** @brief Magic packet key type */
-    using MagicKey = std::uint32_t;
-
-    /** @brief SpecialLabMagicKey network packets magic key */
-    constexpr MagicKey SpecialLabMagicKey = 0xABCDEF;
-
-    /** @brief Discovery packet */
-    struct DiscoveryPacket
-    {
-        MagicKey magicKey { SpecialLabMagicKey };
-        BoardID boardID { 0u };
-        ConnectionType connectionType { ConnectionType::None };
-        NodeDistance distance { 0u };
-    };
 }
 
 /** @brief Base of any packet */
