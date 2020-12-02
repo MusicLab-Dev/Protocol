@@ -18,6 +18,7 @@ namespace Protocol
          *
          * @param BoardID The board that receive XYZ
          */
-        Connect = 100u
+        IDRequest = 100u,
+        IDAssignement
     };
 }
