@@ -5,6 +5,9 @@ get_filename_component(ProtocolDir ${CMAKE_CURRENT_LIST_FILE} PATH)
 
 set(ProtocolSources
     ${ProtocolDir}/Protocol.hpp
+    ${ProtocolDir}/ConnectionProtocol.hpp
+    ${ProtocolDir}/EventProtocol.hpp
+    ${ProtocolDir}/Control.hpp
     ${ProtocolDir}/Packet.hpp
     ${ProtocolDir}/Packet.ipp
     ${ProtocolDir}/Packet.cpp
