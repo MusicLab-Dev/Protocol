@@ -50,9 +50,6 @@ namespace Protocol
 class alignas_eighth_cacheline Protocol::Internal::PacketBase
 {
 public:
-    /** @brief Payload range */
-    using Payload = std::uint16_t;
-
     /** @brief Payload maximum value */
     static constexpr Payload PayloadMax = std::numeric_limits<Payload>::max();
 
@@ -82,11 +79,14 @@ public:
     PacketBase &operator=(PacketBase &&other) noexcept = default;
 
 
+    /** @brief Get the header's magic key */
+    [[nodiscard]] MagicKey magicKey(void) const noexcept { return _header->magicKey; }
+
     /** @brief Get the packet payload (data size without header) */
     [[nodiscard]] Payload payload(void) const noexcept { return _header->payload; }
 
     /** @brief Get the total packet size (header and data) */
-    [[nodiscard]] std::size_t totalSize(void) const noexcept { return payload() + sizeof(Header); }
+    [[nodiscard]] Payload totalSize(void) const noexcept { return payload() + sizeof(Header); }
 
 
     /** @brief Get the protocol type (Connection / Event) */

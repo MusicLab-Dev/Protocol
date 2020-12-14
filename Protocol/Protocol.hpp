@@ -20,6 +20,13 @@ namespace Protocol
     /** @brief Distance between two nodes */
     using BoardID = std::uint8_t;
 
+    /** @brief The hardware size of a board */
+    struct BoardSize
+    {
+        std::uint16_t width { 0u };
+        std::uint16_t height { 0u };
+    };
+
     /** @brief Hardware connection type */
     enum class ConnectionType : std::uint8_t {
         None,
@@ -38,6 +45,9 @@ namespace Protocol
 
     /** @brief Packet magic key type */
     using MagicKey = std::uint32_t;
+
+    /** @brief Payload range */
+    using Payload = std::uint16_t;
 
     /** @brief SpecialLabMagicKey network packets magic key */
     constexpr MagicKey SpecialLabMagicKey = 0xABCDEF;

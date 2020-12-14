@@ -11,14 +11,24 @@ namespace Protocol
 {
     /** @brief Every commands of the Connection protocol */
     DeclareProtocolEnum(ConnectionCommand) {
-        /**
-         * @brief Initialize connection
-         *  This is a long description ....
-         *  ..........................
+        /** @brief Initialize connection and assign a board ID
          *
-         * @param BoardID The board that receive XYZ
+         * -> Client:
+         * @param void
+         *
+         * <- Server:
+         * @param BoardID The assigned board ID
          */
-        IDRequest = 100u,
-        IDAssignement
+        IDAssignment,
+
+        /** @brief Share hardare specifications of the board
+         *
+         * -> Server:
+         * @param void
+         *
+         * <- Client:
+         * @param BoardSize Hardware board size
+        */
+        HardwareSpecs,
     };
 }

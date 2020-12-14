@@ -9,6 +9,9 @@
 
 namespace Protocol
 {
+    /** @brief Index of a control in a board */
+    using ControlIndex = std::uint16_t;
+
     /** @brief Describe a parameter data */
     struct Control
     {
