@@ -17,9 +17,9 @@ TEST(Packet, SimpleIntPacket)
 
     // Serialize data
     WritablePacket wpacket(std::begin(buff), std::end(buff));
-    wpacket.prepare(ProtocolType::Connection, ConnectionCommand::Connect);
+    wpacket.prepare(ProtocolType::Connection, ConnectionCommand::IDAssignment);
     ASSERT_EQ(wpacket.protocolType(), ProtocolType::Connection);
-    ASSERT_EQ(wpacket.commandAs<ConnectionCommand>(), ConnectionCommand::Connect);
+    ASSERT_EQ(wpacket.commandAs<ConnectionCommand>(), ConnectionCommand::IDAssignment);
     ASSERT_EQ(wpacket.payload(), 0u);
     ASSERT_EQ(wpacket.footprintStack(), 0u);
     ASSERT_EQ(wpacket.bytesAvailable(), sizeof(int));
@@ -34,7 +34,7 @@ TEST(Packet, SimpleIntPacket)
     // Deserialize data
     ReadablePacket rpacket(std::begin(buff), std::end(buff));
     ASSERT_EQ(rpacket.protocolType(), ProtocolType::Connection);
-    ASSERT_EQ(rpacket.commandAs<ConnectionCommand>(), ConnectionCommand::Connect);
+    ASSERT_EQ(rpacket.commandAs<ConnectionCommand>(), ConnectionCommand::IDAssignment);
     ASSERT_EQ(rpacket.payload(), 4u);
     ASSERT_EQ(rpacket.footprintStack(), 0u);
     ASSERT_EQ(rpacket.bytesAvailable(), 4);
@@ -67,9 +67,9 @@ TEST(Packet, StringVector)
 
     // Serialize data
     WritablePacket wpacket(std::begin(buff), std::end(buff));
-    wpacket.prepare(ProtocolType::Connection, ConnectionCommand::Connect);
+    wpacket.prepare(ProtocolType::Connection, ConnectionCommand::IDAssignment);
     ASSERT_EQ(wpacket.protocolType(), ProtocolType::Connection);
-    ASSERT_EQ(wpacket.commandAs<ConnectionCommand>(), ConnectionCommand::Connect);
+    ASSERT_EQ(wpacket.commandAs<ConnectionCommand>(), ConnectionCommand::IDAssignment);
     ASSERT_EQ(wpacket.payload(), 0u);
     ASSERT_EQ(wpacket.footprintStack(), 0u);
     ASSERT_EQ(wpacket.bytesAvailable(), PayloadSize);
@@ -84,7 +84,7 @@ TEST(Packet, StringVector)
     // Deserialize data
     ReadablePacket rpacket(std::begin(buff), std::end(buff));
     ASSERT_EQ(rpacket.protocolType(), ProtocolType::Connection);
-    ASSERT_EQ(rpacket.commandAs<ConnectionCommand>(), ConnectionCommand::Connect);
+    ASSERT_EQ(rpacket.commandAs<ConnectionCommand>(), ConnectionCommand::IDAssignment);
     ASSERT_EQ(rpacket.payload(), PayloadSize);
     ASSERT_EQ(rpacket.footprintStack(), 0u);
     ASSERT_EQ(rpacket.bytesAvailable(), PayloadSize);
