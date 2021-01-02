@@ -55,9 +55,9 @@ namespace Protocol
     /** @brief Discovery packet */
     struct DiscoveryPacket
     {
-        MagicKey magicKey { SpecialLabMagicKey };
-        BoardID boardID { 0u };
-        ConnectionType connectionType { ConnectionType::None };
-        NodeDistance distance { 0u };
+        MagicKey magicKey;
+        BoardID boardID;
+        ConnectionType connectionType;
+        NodeDistance distance;
     };
 };
