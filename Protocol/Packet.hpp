@@ -60,7 +60,7 @@ public:
         ProtocolType protocolType { ProtocolType::Connection };
         Command command { 0u };
         Payload payload { 0u };
-        std::uint16_t footprintStack { 0u };
+        std::uint16_t footprintStackSize { 0u };
     };
 
     static_assert_sizeof(Header, 12);
@@ -100,24 +100,24 @@ public:
     [[nodiscard]] CommandType commandAs(void) const noexcept { return static_cast<CommandType>(command()); }
 
 
-    /** @brief Get the packet payload (data size without header) */
-    [[nodiscard]] std::uint16_t footprintStack(void) const noexcept { return _header->footprintStack; }
+    /** @brief Get the packet footprint stack size */
+    [[nodiscard]] std::uint8_t footprintStackSize(void) const noexcept { return _header->footprintStackSize; }
 
-    /** @brief Get the begin pointer of footprint */
-    [[nodiscard]] const BoardID *footprintBegin(void) const noexcept
-        { return data() + _header->payload - _header->footprintStack; }
+    /** @brief Get the begining of footprint stack pointer */
+    [[nodiscard]] const BoardID *footprintStackBegin(void) const noexcept
+        { return data() + _header->payload - _header->footprintStackSize; }
 
-    /** @brief Get the end pointer of footprint */
-    [[nodiscard]] const BoardID *footprintEnd(void) const noexcept
+    /** @brief Get the end of footprint stack pointer */
+    [[nodiscard]] const BoardID *footprintStackEnd(void) const noexcept
         { return data() + _header->payload; }
-
-protected:
-    /** @brief Get the header pointer */
-    [[nodiscard]] const Header *header(void) const noexcept { return _header; }
 
     /** @brief Get the data pointer */
     template<typename Type = std::uint8_t>
     [[nodiscard]] const Type *data(void) const noexcept { return reinterpret_cast<const Type *>(_header + 1); }
+
+protected:
+    /** @brief Get the header pointer */
+    [[nodiscard]] const Header *header(void) const noexcept { return _header; }
 
 private:
     const Header *_header { nullptr };
@@ -140,9 +140,9 @@ public:
     /** @brief Destructor */
     ~ReadablePacket(void) noexcept = default;
 
+
     /** @brief Move assignment */
     ReadablePacket &operator=(ReadablePacket &&other) noexcept = default;
-
 
     /** @brief Extract a value from the packet */
     template<typename Type>
@@ -152,7 +152,6 @@ public:
     template<typename OutputIterator>
     void extract(const OutputIterator begin, const OutputIterator end);
 
-
     /** @brief Extract the deserializable data of a container to the packet (including its size) */
     template<typename Container, EnableIfContainerDetected<Container>* = nullptr>
     ReadablePacket &operator>>(Container &container);
@@ -160,7 +159,6 @@ public:
     /** @brief Extract deserializable data to the packet */
     template<typename Type, EnableIfContainerNotDetected<Type>* = nullptr>
     ReadablePacket &operator>>(Type &value);
-
 
     /** @brief Get the packet payload (data size without header) */
     [[nodiscard]] Payload payload(void) const noexcept { return _payload; }
@@ -170,7 +168,7 @@ public:
 
     /** @brief Returns the remaining writable size available in bytes */
     [[nodiscard]] std::size_t bytesAvailable(void) const noexcept
-        { return _payload - _readIndex; }
+        { return _payload - _readIndex - header()->footprintStackSize; }
 
 private:
     std::uint32_t _payload { 0u };
@@ -201,19 +199,20 @@ public:
     /** @brief Destructor */
     ~WritablePacket(void) noexcept = default;
 
+
     /** @brief Move assignment */
     WritablePacket &operator=(WritablePacket &&other) noexcept = default;
 
+    /** @brief Copy assignment from a ReadablePacket */
+    WritablePacket &operator=(ReadablePacket &other) noexcept;
 
     /** @brief Prepare a packet */
     template<typename CommandType, std::enable_if_t<sizeof(CommandType) == sizeof(Command)>* = nullptr>
     WritablePacket &prepare(const ProtocolType protocolType, const CommandType command);
 
-
     /** @brief Insert a range of values in the packet */
     template<typename InputIterator>
     WritablePacket &insert(const InputIterator begin, const InputIterator end) noexcept_ndebug;
-
 
     /** @brief Insert the serializable data of a container to the packet */
     template<typename Container, EnableIfContainerDetected<Container>* = nullptr>
@@ -223,10 +222,23 @@ public:
     template<typename Type, EnableIfContainerNotDetected<Type>* = nullptr>
     WritablePacket &operator<<(const Type &value) noexcept_ndebug;
 
-
     /** @brief Returns the remaining writable size available in bytes */
     [[nodiscard]] std::size_t bytesAvailable(void) const noexcept
         { return _capacity - _writeIndex - sizeof(Header); }
+
+    /** @brief push a boardID at the end of the footprint stack */
+    void pushFootprint(const BoardID boardID);
+
+    /** @brief remove the boardID at the front of the footprint stack and return the value */
+    BoardID popFrontStack(void);
+
+    /** @brief remove the boardID at the end of the footprint stack and return the value */
+    BoardID popBackStack(void);
+
+    /** @brief Get the data pointer */
+    template<typename Type = std::uint8_t>
+    [[nodiscard]] Type *data(void) noexcept
+        { return const_cast<Type *>(Internal::PacketBase::data<Type>()); }
 
 private:
     std::uint32_t _capacity { 0u };
@@ -236,10 +248,6 @@ private:
     [[nodiscard]] Header *header(void) const noexcept
         { return const_cast<Header *>(Internal::PacketBase::header()); }
 
-    /** @brief Get the data pointer */
-    template<typename Type = std::uint8_t>
-    [[nodiscard]] Type *data(void) noexcept
-        { return const_cast<Type *>(Internal::PacketBase::data<Type>()); }
 
     /** @brief Get the data pointer */
     template<typename Type = std::uint8_t>

@@ -50,7 +50,7 @@ namespace Protocol
     using Payload = std::uint16_t;
 
     /** @brief SpecialLabMagicKey network packets magic key */
-    constexpr MagicKey SpecialLabMagicKey = 0xABCDEF;
+    constexpr MagicKey SpecialLabMagicKey = 420 /* 0xABCDEF */;
 
     /** @brief Discovery packet */
     struct DiscoveryPacket

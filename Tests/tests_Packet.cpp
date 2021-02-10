@@ -21,7 +21,7 @@ TEST(Packet, SimpleIntPacket)
     ASSERT_EQ(wpacket.protocolType(), ProtocolType::Connection);
     ASSERT_EQ(wpacket.commandAs<ConnectionCommand>(), ConnectionCommand::IDAssignment);
     ASSERT_EQ(wpacket.payload(), 0u);
-    ASSERT_EQ(wpacket.footprintStack(), 0u);
+    ASSERT_EQ(wpacket.footprintStackSize(), 0u);
     ASSERT_EQ(wpacket.bytesAvailable(), sizeof(int));
     wpacket << x;
     ASSERT_EQ(wpacket.payload(), 4u);
@@ -36,7 +36,7 @@ TEST(Packet, SimpleIntPacket)
     ASSERT_EQ(rpacket.protocolType(), ProtocolType::Connection);
     ASSERT_EQ(rpacket.commandAs<ConnectionCommand>(), ConnectionCommand::IDAssignment);
     ASSERT_EQ(rpacket.payload(), 4u);
-    ASSERT_EQ(rpacket.footprintStack(), 0u);
+    ASSERT_EQ(rpacket.footprintStackSize(), 0u);
     ASSERT_EQ(rpacket.bytesAvailable(), 4);
     const auto y = rpacket.extract<int>();
     ASSERT_EQ(x, y);
@@ -71,7 +71,7 @@ TEST(Packet, StringVector)
     ASSERT_EQ(wpacket.protocolType(), ProtocolType::Connection);
     ASSERT_EQ(wpacket.commandAs<ConnectionCommand>(), ConnectionCommand::IDAssignment);
     ASSERT_EQ(wpacket.payload(), 0u);
-    ASSERT_EQ(wpacket.footprintStack(), 0u);
+    ASSERT_EQ(wpacket.footprintStackSize(), 0u);
     ASSERT_EQ(wpacket.bytesAvailable(), PayloadSize);
     wpacket << input;
     ASSERT_EQ(wpacket.payload(), PayloadSize);
@@ -86,7 +86,7 @@ TEST(Packet, StringVector)
     ASSERT_EQ(rpacket.protocolType(), ProtocolType::Connection);
     ASSERT_EQ(rpacket.commandAs<ConnectionCommand>(), ConnectionCommand::IDAssignment);
     ASSERT_EQ(rpacket.payload(), PayloadSize);
-    ASSERT_EQ(rpacket.footprintStack(), 0u);
+    ASSERT_EQ(rpacket.footprintStackSize(), 0u);
     ASSERT_EQ(rpacket.bytesAvailable(), PayloadSize);
     const auto output = rpacket.extract<std::vector<std::string>>();
     ASSERT_EQ(input, output);
@@ -94,4 +94,52 @@ TEST(Packet, StringVector)
     // Overflow test
     ASSERT_EQ(rpacket.bytesAvailable(), 0);
     ASSERT_ANY_THROW(static_cast<void>(rpacket.extract<int>()));
+}
+
+TEST(Packet, PacketWithFootprintStack)
+{
+    char buff[sizeof(WritablePacket::Header) + sizeof(int) + 2 * (sizeof(BoardID))];
+    int x = 42;
+
+    // Serialize data
+    WritablePacket wpacket(std::begin(buff), std::end(buff));
+    wpacket.prepare(ProtocolType::Connection, ConnectionCommand::IDAssignment);
+    ASSERT_EQ(wpacket.protocolType(), ProtocolType::Connection);
+    ASSERT_EQ(wpacket.commandAs<ConnectionCommand>(), ConnectionCommand::IDAssignment);
+    ASSERT_EQ(wpacket.payload(), 0u);
+    ASSERT_EQ(wpacket.footprintStackSize(), 0u);
+    ASSERT_EQ(wpacket.bytesAvailable(), sizeof(int) + 2 * (sizeof(BoardID)));
+    wpacket << x;
+    ASSERT_EQ(wpacket.payload(), 4u);
+    wpacket.pushFootprint(static_cast<BoardID>(42));
+    wpacket.pushFootprint(static_cast<BoardID>(84));
+    ASSERT_EQ(wpacket.payload(), 6u);
+    ASSERT_EQ(wpacket.footprintStackSize(), 2u);
+
+    // Overflow test
+    ASSERT_EQ(wpacket.bytesAvailable(), 0);
+#if CORE_DEBUG_BUILD
+    ASSERT_ANY_THROW(wpacket << x);
+#endif
+
+    // Deserialize data
+    ReadablePacket rpacket(std::begin(buff), std::end(buff));
+    ASSERT_EQ(rpacket.protocolType(), ProtocolType::Connection);
+    ASSERT_EQ(rpacket.commandAs<ConnectionCommand>(), ConnectionCommand::IDAssignment);
+    ASSERT_EQ(rpacket.payload(), 6u);
+    ASSERT_EQ(rpacket.footprintStackSize(), 2u);
+    ASSERT_EQ(rpacket.bytesAvailable(), 4);
+    const auto y = rpacket.extract<int>();
+    ASSERT_EQ(x, y);
+
+    // Overflow test
+    ASSERT_EQ(rpacket.bytesAvailable(), 0);
+    ASSERT_ANY_THROW(static_cast<void>(rpacket.extract<int>()));
+
+    ASSERT_EQ(wpacket.popFrontStack(), 42);
+    ASSERT_EQ(wpacket.payload(), 5u);
+    ASSERT_EQ(wpacket.footprintStackSize(), 1u);
+    ASSERT_EQ(wpacket.popFrontStack(), 84);
+    ASSERT_EQ(wpacket.payload(), 4u);
+    ASSERT_EQ(wpacket.footprintStackSize(), 0u);
 }
