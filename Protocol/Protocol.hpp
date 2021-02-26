@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <utility>
 
-#include "Control.hpp"
+#include "Module.hpp"
 
 #define DeclareProtocolEnum(Name) enum class Name : Protocol::Command
 
