@@ -60,4 +60,4 @@ namespace Protocol
         ConnectionType connectionType;
         NodeDistance distance;
     };
-};
+}

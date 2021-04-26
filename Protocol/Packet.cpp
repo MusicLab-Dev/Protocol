@@ -9,7 +9,7 @@ using namespace Protocol;
 
 WritablePacket &WritablePacket::operator=(ReadablePacket &other) noexcept
 {
-    std::size_t otherPayload = other.payload();
+    const auto otherPayload = other.payload();
 
     header()->magicKey = SpecialLabMagicKey;
     header()->protocolType = other.protocolType();

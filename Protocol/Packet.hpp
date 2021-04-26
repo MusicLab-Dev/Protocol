@@ -101,7 +101,7 @@ public:
 
 
     /** @brief Get the packet footprint stack size */
-    [[nodiscard]] std::uint8_t footprintStackSize(void) const noexcept { return _header->footprintStackSize; }
+    [[nodiscard]] std::uint16_t footprintStackSize(void) const noexcept { return _header->footprintStackSize; }
 
     /** @brief Get the begining of footprint stack pointer */
     [[nodiscard]] const BoardID *footprintStackBegin(void) const noexcept
@@ -123,10 +123,10 @@ private:
     const Header *_header { nullptr };
 };
 
-// static_assert_fit_eighth_cacheline(Protocol::Internal::PacketBase);
+static_assert_fit_eighth_cacheline(Protocol::Internal::PacketBase);
 
 /** @brief A read-only packet */
-class Protocol::ReadablePacket : public Internal::PacketBase
+class alignas_quarter_cacheline Protocol::ReadablePacket : public Internal::PacketBase
 {
 public:
     /** @brief Construct a packet from binary data */
@@ -164,15 +164,15 @@ public:
     [[nodiscard]] Payload payload(void) const noexcept { return _payload; }
 
     /** @brief Get the total packet size (header and data) */
-    [[nodiscard]] std::size_t totalSize(void) const noexcept { return payload() + sizeof(Header); }
+    [[nodiscard]] Payload totalSize(void) const noexcept { return payload() + sizeof(Header); }
 
     /** @brief Returns the remaining writable size available in bytes */
-    [[nodiscard]] std::size_t bytesAvailable(void) const noexcept
-        { return _payload - _readIndex - header()->footprintStackSize; }
+    [[nodiscard]] Payload bytesAvailable(void) const noexcept
+        { return static_cast<std::uint16_t>(_payload - _readIndex - header()->footprintStackSize); }
 
 private:
-    std::uint32_t _payload { 0u };
-    std::uint32_t _readIndex { 0u };
+    Payload _payload { 0u };
+    Payload _readIndex { 0u };
 
     // Don't use the base payload / totalSize as we cache it
     using Internal::PacketBase::payload;
@@ -184,6 +184,8 @@ private:
         { return reinterpret_cast<const Type *>(data<std::uint8_t>() + _readIndex); }
 };
 
+static_assert_fit_quarter_cacheline(Protocol::ReadablePacket);
+
 /** @brief A write-only packet */
 class alignas_quarter_cacheline Protocol::WritablePacket : public Internal::PacketBase
 {
@@ -191,7 +193,7 @@ public:
     /** @brief Construct a packet from binary data */
     template<typename BinaryData>
     WritablePacket(const BinaryData * const begin, const BinaryData * const end) noexcept_ndebug
-        : PacketBase(begin, end), _capacity(std::distance(begin, end)) {}
+        : PacketBase(begin, end), _capacity(static_cast<Payload>(std::distance(begin, end))) {}
 
     /** @brief Move constructor */
     WritablePacket(WritablePacket &&other) noexcept = default;
@@ -223,8 +225,8 @@ public:
     WritablePacket &operator<<(const Type &value) noexcept_ndebug;
 
     /** @brief Returns the remaining writable size available in bytes */
-    [[nodiscard]] std::size_t bytesAvailable(void) const noexcept
-        { return _capacity - _writeIndex - sizeof(Header); }
+    [[nodiscard]] Payload bytesAvailable(void) const noexcept
+        { return static_cast<Payload>(_capacity - _writeIndex - static_cast<Payload>(sizeof(Header))); }
 
     /** @brief push a boardID at the end of the footprint stack */
     void pushFootprint(const BoardID boardID);
@@ -241,8 +243,8 @@ public:
         { return const_cast<Type *>(Internal::PacketBase::data<Type>()); }
 
 private:
-    std::uint32_t _capacity { 0u };
-    std::uint32_t _writeIndex { 0u };
+    Payload _capacity { 0u };
+    Payload _writeIndex { 0u };
 
     /** @brief Get the header pointer */
     [[nodiscard]] Header *header(void) const noexcept
@@ -255,6 +257,6 @@ private:
         { return reinterpret_cast<Type *>(data<std::uint8_t>() + _writeIndex); }
 };
 
-// static_assert_fit_quarter_cacheline(Protocol::WritablePacket);
+static_assert_fit_quarter_cacheline(Protocol::WritablePacket);
 
 #include "Packet.ipp"

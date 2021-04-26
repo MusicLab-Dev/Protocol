@@ -30,7 +30,7 @@ void ReadablePacket::extract(const OutputIterator begin, const OutputIterator en
 {
     using Type = decltype(*std::declval<OutputIterator>());
 
-    const auto size = std::distance(begin, end);
+    const auto size = static_cast<Payload>(std::distance(begin, end));
     const auto sizeInBytes = size * sizeof(Type);
 
     // Check if the container contains optimizable trivially copyable types
@@ -85,7 +85,7 @@ inline WritablePacket &WritablePacket::insert(const InputIterator begin, const I
 {
     using Type = decltype(*std::declval<InputIterator>());
 
-    const auto size = std::distance(begin, end);
+    const auto size = static_cast<Payload>(std::distance(begin, end));
     const auto sizeInBytes = size * sizeof(Type);
 
     // Check if the container contains optimizable trivially copyable types
