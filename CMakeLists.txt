@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
-project(Protocol)
 
 get_filename_component(ProtocolRoot ${CMAKE_CURRENT_LIST_FILE} PATH)
+
+include(${ProtocolRoot}/CompileOptions/ToolchainOptions.cmake)
+
+project(Protocol)
 
 include(${ProtocolRoot}/CompileOptions/CompileOptions.cmake)
 
