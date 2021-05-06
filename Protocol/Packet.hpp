@@ -86,7 +86,7 @@ public:
     [[nodiscard]] Payload payload(void) const noexcept { return _header->payload; }
 
     /** @brief Get the total packet size (header and data) */
-    [[nodiscard]] Payload totalSize(void) const noexcept { return payload() + sizeof(Header); }
+    [[nodiscard]] Payload totalSize(void) const noexcept { return payload() + static_cast<Payload>(sizeof(Header)); }
 
 
     /** @brief Get the protocol type (Connection / Event) */
@@ -164,7 +164,7 @@ public:
     [[nodiscard]] Payload payload(void) const noexcept { return _payload; }
 
     /** @brief Get the total packet size (header and data) */
-    [[nodiscard]] Payload totalSize(void) const noexcept { return payload() + sizeof(Header); }
+    [[nodiscard]] Payload totalSize(void) const noexcept { return payload() + static_cast<Payload>(sizeof(Header)); }
 
     /** @brief Returns the remaining writable size available in bytes */
     [[nodiscard]] Payload bytesAvailable(void) const noexcept
