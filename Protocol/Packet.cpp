@@ -7,7 +7,7 @@
 
 using namespace Protocol;
 
-WritablePacket &WritablePacket::operator=(ReadablePacket &other) noexcept
+WritablePacket &WritablePacket::operator=(const ReadablePacket &other) noexcept
 {
     const auto otherPayload = other.payload();
 

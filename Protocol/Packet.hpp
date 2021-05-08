@@ -115,6 +115,10 @@ public:
     template<typename Type = std::uint8_t>
     [[nodiscard]] const Type *data(void) const noexcept { return reinterpret_cast<const Type *>(_header + 1); }
 
+    /** @brief Raw data begin / end */
+    [[nodiscard]] const std::uint8_t *rawDataBegin(void) const noexcept { return reinterpret_cast<const std::uint8_t *>(_header); }
+    [[nodiscard]] const std::uint8_t *rawDataEnd(void) const noexcept { return rawDataBegin() + totalSize(); }
+
 protected:
     /** @brief Get the header pointer */
     [[nodiscard]] const Header *header(void) const noexcept { return _header; }
@@ -206,7 +210,7 @@ public:
     WritablePacket &operator=(WritablePacket &&other) noexcept = default;
 
     /** @brief Copy assignment from a ReadablePacket */
-    WritablePacket &operator=(ReadablePacket &other) noexcept;
+    WritablePacket &operator=(const ReadablePacket &other) noexcept;
 
     /** @brief Prepare a packet */
     template<typename CommandType, std::enable_if_t<sizeof(CommandType) == sizeof(Command)>* = nullptr>

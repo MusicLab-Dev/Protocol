@@ -11,6 +11,7 @@ set(ProtocolSources
     ${ProtocolDir}/Packet.hpp
     ${ProtocolDir}/Packet.ipp
     ${ProtocolDir}/Packet.cpp
+    ${ProtocolDir}/NetworkLog.hpp
 )
 
 add_library(${PROJECT_NAME} ${ProtocolSources})

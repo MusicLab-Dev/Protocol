@@ -60,4 +60,11 @@ namespace Protocol
         ConnectionType connectionType;
         NodeDistance distance;
     };
+
+    /** @brief Describe a board */
+    struct BoardDescriptor
+    {
+        std::uint8_t width {};
+        std::uint8_t height {};
+    };
 }
