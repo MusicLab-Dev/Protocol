@@ -14,11 +14,12 @@ namespace Protocol
         /** @brief Notify that controls has been connected
          *
          * -> Client:
-         * @param Vector Contains the data of each control
+         * @param Vector Contains the data of each input
+         *  @param ControlType Type of the input
          *  @param ControlIndex The position of the control in the board
-         *  @param Control The state of the control
+         *  @param State The state of the control
          */
-        ControlsConnected = 200u,
+        ControlsConnection = 200u,
 
         /** @brief Notify that controls has been disconnected
          *
@@ -32,8 +33,7 @@ namespace Protocol
          *
          * -> Client:
          * @param Vector Contains the data of each control
-         *  @param ControlIndex The position of the control in the board
-         *  @param Control The state of the control
+         *  @param InputEvent The input event
          */
         ControlsChanged
     };
