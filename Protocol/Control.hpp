@@ -27,4 +27,11 @@ namespace Protocol
         std::uint8_t value2 { 0u };
         std::uint8_t value3 { 0u };
     };
+
+    /** @brief Describe an input event */
+    struct InputEvent
+    {
+        std::uint8_t inputIdx { 0u };
+        std::uint8_t value { 0u };
+    };
 }

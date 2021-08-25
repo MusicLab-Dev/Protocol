@@ -86,7 +86,7 @@ public:
     [[nodiscard]] Payload payload(void) const noexcept { return _header->payload; }
 
     /** @brief Get the total packet size (header and data) */
-    [[nodiscard]] Payload totalSize(void) const noexcept { return payload() + sizeof(Header); }
+    [[nodiscard]] Payload totalSize(void) const noexcept { return static_cast<Payload>(payload() + sizeof(Header)); }
 
 
     /** @brief Get the protocol type (Connection / Event) */
@@ -114,6 +114,10 @@ public:
     /** @brief Get the data pointer */
     template<typename Type = std::uint8_t>
     [[nodiscard]] const Type *data(void) const noexcept { return reinterpret_cast<const Type *>(_header + 1); }
+
+    /** @brief Raw data begin / end */
+    [[nodiscard]] const std::uint8_t *rawDataBegin(void) const noexcept { return reinterpret_cast<const std::uint8_t *>(_header); }
+    [[nodiscard]] const std::uint8_t *rawDataEnd(void) const noexcept { return rawDataBegin() + totalSize(); }
 
 protected:
     /** @brief Get the header pointer */
@@ -164,7 +168,7 @@ public:
     [[nodiscard]] Payload payload(void) const noexcept { return _payload; }
 
     /** @brief Get the total packet size (header and data) */
-    [[nodiscard]] Payload totalSize(void) const noexcept { return payload() + sizeof(Header); }
+    [[nodiscard]] Payload totalSize(void) const noexcept { return static_cast<Payload>(payload() + sizeof(Header)); }
 
     /** @brief Returns the remaining writable size available in bytes */
     [[nodiscard]] Payload bytesAvailable(void) const noexcept
@@ -206,7 +210,7 @@ public:
     WritablePacket &operator=(WritablePacket &&other) noexcept = default;
 
     /** @brief Copy assignment from a ReadablePacket */
-    WritablePacket &operator=(ReadablePacket &other) noexcept;
+    WritablePacket &operator=(const ReadablePacket &other) noexcept;
 
     /** @brief Prepare a packet */
     template<typename CommandType, std::enable_if_t<sizeof(CommandType) == sizeof(Command)>* = nullptr>

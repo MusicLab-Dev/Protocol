@@ -24,7 +24,7 @@ namespace Protocol
     struct BoardSize
     {
         std::uint16_t width { 0u };
-        std::uint16_t height { 0u };
+        std::uint16_t heigth { 0u };
     };
 
     /** @brief Hardware connection type */
@@ -59,5 +59,12 @@ namespace Protocol
         BoardID boardID;
         ConnectionType connectionType;
         NodeDistance distance;
+    };
+
+    /** @brief Describe a board */
+    struct BoardDescriptor
+    {
+        std::uint8_t width {};
+        std::uint8_t height {};
     };
 }
